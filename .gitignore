@@ -1,0 +1,85 @@
+# =============================
+# Python
+# =============================
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg
+*.egg-info/
+dist/
+build/
+eggs/
+.eggs/
+*.manifest
+*.spec
+
+# =============================
+# Virtual environments
+# =============================
+venv/
+.venv/
+env/
+.env/
+ENV/
+
+# =============================
+# Django
+# =============================
+*.log
+local_settings.py
+db.sqlite3
+db.sqlite3-journal
+/media
+/staticfiles
+*.pot
+*.pyc
+
+# =============================
+# Environment & secrets
+# =============================
+.env
+.env.local
+.env.*.local
+*.pem
+
+# =============================
+# IDE / Editor
+# =============================
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.project
+.pydevproject
+.settings/
+
+# =============================
+# OS
+# =============================
+.DS_Store
+.DS_Store?
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# =============================
+# Testing & coverage
+# =============================
+.coverage
+htmlcov/
+.tox/
+.nox/
+.pytest_cache/
+coverage.xml
+*.cover
+.hypothesis/
+
+# =============================
+# Misc
+# =============================
+*.bak
+*.tmp
+.cache/

@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contact | Mubeen's Home</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Montserrat', 'sans-serif'] },
+                    colors: { brand: { purple: '#667eea', violet: '#764ba2', gold: '#ffd700', goldDark: '#ffad42' } }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { font-family: 'Montserrat', sans-serif; }
+        .gradient-bg { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+        .card-glass { background: rgba(255,255,255,0.09); box-shadow: 0 10px 32px rgba(0,0,0,0.08), 0 1.5px 4px rgba(255,255,255,0.17); }
+        .link-underline { position: relative; }
+        .link-underline::after { content: ''; position: absolute; left: 0; bottom: -2px; width: 0; height: 2px; background: #fff; transition: width 0.3s; }
+        .link-underline:hover::after { width: 100%; }
+        input:focus, textarea:focus { outline: none; }
+    </style>
+</head>
+<body class="gradient-bg min-h-screen flex flex-col text-white">
+    <nav class="flex flex-wrap justify-between items-center px-6 md:px-12 lg:px-16 pt-8 pb-4">
+        <a href="/" class="text-white font-extrabold text-xl md:text-2xl tracking-wide">Mubeen's Home</a>
+        <div class="flex gap-6 md:gap-8">
+            <a href="/" class="text-white/90 hover:text-amber-300 font-semibold text-sm md:text-base link-underline">Home</a>
+            <a href="/features/" class="text-white/90 hover:text-amber-300 font-semibold text-sm md:text-base link-underline">Features</a>
+            <a href="/contact/" class="text-amber-300 font-semibold text-sm md:text-base link-underline">Contact</a>
+            <a href="/login/" class="text-white/90 hover:text-amber-300 font-semibold text-sm md:text-base link-underline">Login</a>
+        </div>
+    </nav>
+
+    <main class="flex-1 px-4 sm:px-6 lg:px-8 py-12 md:py-16">
+        <section class="max-w-4xl mx-auto">
+            <div class="text-center mb-12 md:mb-16">
+                <h1 class="text-3xl sm:text-4xl md:text-5xl font-extrabold tracking-tight mb-4">Get in Touch</h1>
+                <p class="text-white/80 text-lg md:text-xl">We'd love to hear from you. Send a message and we'll respond as soon as we can.</p>
+            </div>
+
+            <div class="grid md:grid-cols-5 gap-8 md:gap-12">
+                <div class="md:col-span-2 space-y-6">
+                    <div class="card-glass rounded-2xl p-6">
+                        <div class="flex items-center gap-4 mb-4">
+                            <div class="w-10 h-10 rounded-lg bg-white/15 flex items-center justify-center text-lg">📍</div>
+                            <h2 class="font-bold text-lg">Visit</h2>
+                        </div>
+                        <p class="text-white/80 text-sm">123 Example Street<br>Your City, ST 12345</p>
+                    </div>
+                    <div class="card-glass rounded-2xl p-6">
+                        <div class="flex items-center gap-4 mb-4">
+                            <div class="w-10 h-10 rounded-lg bg-white/15 flex items-center justify-center text-lg">✉️</div>
+                            <h2 class="font-bold text-lg">Email</h2>
+                        </div>
+                        <a href="mailto:hello@example.com" class="text-amber-300 hover:text-amber-200 text-sm">hello@example.com</a>
+                    </div>
+                    <div class="card-glass rounded-2xl p-6">
+                        <div class="flex items-center gap-4 mb-4">
+                            <div class="w-10 h-10 rounded-lg bg-white/15 flex items-center justify-center text-lg">📞</div>
+                            <h2 class="font-bold text-lg">Phone</h2>
+                        </div>
+                        <a href="tel:+1234567890" class="text-white/80 hover:text-white text-sm">+1 (234) 567-890</a>
+                    </div>
+                </div>
+
+                <div class="md:col-span-3">
+                    <form class="card-glass rounded-2xl p-6 md:p-8 space-y-5" action="#" method="post">
+                        {% csrf_token %}
+                        <div class="grid sm:grid-cols-2 gap-5">
+                            <div>
+                                <label for="name" class="block text-sm font-semibold mb-2 text-white/90">Name</label>
+                                <input type="text" id="name" name="name" required
+                                    class="w-full px-4 py-3 rounded-xl bg-white/10 border border-white/20 text-white placeholder-white/50 focus:border-amber-300/60 focus:ring-2 focus:ring-amber-300/30 transition"
+                                    placeholder="Your name">
+                            </div>
+                            <div>
+                                <label for="email" class="block text-sm font-semibold mb-2 text-white/90">Email</label>
+                                <input type="email" id="email" name="email" required
+                                    class="w-full px-4 py-3 rounded-xl bg-white/10 border border-white/20 text-white placeholder-white/50 focus:border-amber-300/60 focus:ring-2 focus:ring-amber-300/30 transition"
+                                    placeholder="you@example.com">
+                            </div>
+                        </div>
+                        <div>
+                            <label for="subject" class="block text-sm font-semibold mb-2 text-white/90">Subject</label>
+                            <input type="text" id="subject" name="subject"
+                                class="w-full px-4 py-3 rounded-xl bg-white/10 border border-white/20 text-white placeholder-white/50 focus:border-amber-300/60 focus:ring-2 focus:ring-amber-300/30 transition"
+                                placeholder="What's this about?">
+                        </div>
+                        <div>
+                            <label for="message" class="block text-sm font-semibold mb-2 text-white/90">Message</label>
+                            <textarea id="message" name="message" rows="5" required
+                                class="w-full px-4 py-3 rounded-xl bg-white/10 border border-white/20 text-white placeholder-white/50 focus:border-amber-300/60 focus:ring-2 focus:ring-amber-300/30 transition resize-y min-h-[120px]"
+                                placeholder="Your message..."></textarea>
+                        </div>
+                        <button type="submit"
+                            class="w-full sm:w-auto px-8 py-3.5 rounded-full font-bold text-gray-900 bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-500 hover:to-amber-400 shadow-lg hover:shadow-xl transition-all">
+                            Send Message
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="text-center text-white/70 py-6 text-sm md:text-base tracking-wide">
+        &copy; 2024 Mubeen Mehmood. All rights reserved.
+    </footer>
+</body>
+</html>
