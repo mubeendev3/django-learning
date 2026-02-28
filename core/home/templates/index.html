@@ -1,149 +1,32 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Welcome | Home</title>
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;800&display=swap" rel="stylesheet">
-    <style>
-        body {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            font-family: 'Montserrat', Arial, sans-serif;
-            margin: 0;
-            min-height: 100vh;
-            color: #24243e;
-            display: flex;
-            flex-direction: column;
-        }
-        nav {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 32px 60px 16px 60px;
-        }
-        .nav-logo {
-            color: #fff;
-            font-weight: 800;
-            font-size: 2.2rem;
-            letter-spacing: 2px;
-            text-shadow: 0px 1px 6px rgba(0,0,0,.18);
-        }
-        .nav-links a {
-            color: #fff;
-            margin-left: 36px;
-            font-size: 1rem;
-            text-decoration: none;
-            position: relative;
-            font-weight: 600;
-            transition: color 0.2s;
-        }
-        .nav-links a::after {
-            content: "";
-            display: block;
-            margin: 0 auto;
-            width: 0;
-            height: 2px;
-            background: #fff;
-            transition: width 0.3s;
-        }
-        .nav-links a:hover {
-            color: #ffd700;
-        }
-        .nav-links a:hover::after {
-            width: 100%;
-        }
-        .hero {
-            flex: 1;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        .hero-content {
-            text-align: center;
-            background: rgba(255,255,255,0.09);
-            padding: 48px 32px;
-            border-radius: 24px;
-            box-shadow: 0 10px 32px rgba(0,0,0,0.08), 0 1.5px 4px rgba(255,255,255,0.17);
-            max-width: 600px;
-        }
-        .main-title {
-            font-size: 3rem;
-            font-weight: 800;
-            margin: 0 0 18px 0;
-            color: #fff;
-            letter-spacing: 1.5px;
-        }
-        .subtitle {
-            color: #f6eaff;
-            font-size: 1.25rem;
-            margin-bottom: 35px;
-            font-weight: 500;
-        }
-        .cta-btn {
-            background: linear-gradient(90deg,#ffd700 0%, #ffad42 100%);
-            color: #232323;
-            border: none;
-            border-radius: 32px;
-            padding: 16px 48px;
-            font-size: 1.2rem;
-            font-weight: 700;
-            cursor: pointer;
-            transition: background 0.25s, color 0.25s;
-            box-shadow: 0 2px 8px rgba(0,0,0,.12);
-        }
-        .cta-btn:hover {
-            background: linear-gradient(90deg,#ffad42 0%,#ffd700 100%);
-            color: #232323;
-        }
-        footer {
-            text-align: center;
-            color: #ddd7fd;
-            margin: 28px 0 16px 0;
-            letter-spacing: 0.5px;
-            font-size: 1rem;
-        }
-        @media (max-width:768px) {
-            nav {
-                padding: 20px 18px 7px 18px;
-            }
-            .nav-logo {
-                font-size: 1.5rem;
-            }
-            .nav-links a {
-                margin-left: 20px;
-                font-size: 0.95rem;
-            }
-            .hero-content {
-                padding: 24px 10px;
-            }
-            .main-title {
-                font-size:2.1rem;
-            }
-            .subtitle {
-                font-size: 1rem;
-            }
-            .cta-btn {
-                padding: 12px 28px;
-                font-size: 1rem;
-            }
-        }
-    </style>
-</head>
-<body>
-    <nav>
-        <div class="nav-logo">Mubeen's Home</div>
-        <div class="nav-links">
-            <a href="#">Home</a>
-            <a href="/features/">Features</a>
-            <a href="/contact/">Contact</a>
-            <a href="/login/">Login</a>
-        </div>
-    </nav>
-    <div class="hero">
-        <div class="hero-content">
-            <div class="main-title">Welcome to Your Beautiful Home Page</div>
-            <div class="subtitle">
-            <table border="1" cellpadding="8" cellspacing="0" style="margin: 18px auto; border-collapse: collapse; border-color: #fff;">
+{% extends "base.html" %}
+
+{% block title %}Welcome | Home{% endblock title %}
+
+{% block extra_head %}
+<style>
+    .hero { display: flex; align-items: center; justify-content: center; }
+    .hero-content { text-align: center; background: rgba(255,255,255,0.09); padding: 48px 32px; border-radius: 24px; box-shadow: 0 10px 32px rgba(0,0,0,0.08), 0 1.5px 4px rgba(255,255,255,0.17); max-width: 600px; }
+    .main-title { font-size: 3rem; font-weight: 800; margin: 0 0 18px 0; color: #fff; letter-spacing: 1.5px; }
+    .subtitle { color: #f6eaff; font-size: 1.25rem; margin-bottom: 35px; font-weight: 500; }
+    .cta-btn { background: linear-gradient(90deg,#ffd700 0%, #ffad42 100%); color: #232323; border: none; border-radius: 32px; padding: 16px 48px; font-size: 1.2rem; font-weight: 700; cursor: pointer; transition: background 0.25s, color 0.25s; box-shadow: 0 2px 8px rgba(0,0,0,.12); text-decoration: none; display: inline-block; }
+    .cta-btn:hover { background: linear-gradient(90deg,#ffad42 0%,#ffd700 100%); color: #232323; }
+    .people-table { margin: 18px auto; border-collapse: collapse; border: 1px solid #fff; }
+    .people-table th, .people-table td { padding: 8px; border: 1px solid #fff; }
+    @media (max-width:768px) {
+        .hero-content { padding: 24px 10px; }
+        .main-title { font-size: 2.1rem; }
+        .subtitle { font-size: 1rem; }
+        .cta-btn { padding: 12px 28px; font-size: 1rem; }
+    }
+</style>
+{% endblock extra_head %}
+
+{% block content %}
+<div class="hero px-4 py-12 md:py-16">
+    <div class="hero-content">
+        <div class="main-title">Welcome to Your Beautiful Home Page</div>
+        <div class="subtitle">
+            <table class="people-table">
                 <thead>
                     <tr>
                         <th>No.</th>
@@ -168,17 +51,13 @@
                     </tr>
                     {% empty %}
                     <tr>
-                        <td colspan="2">No people found.</td>
+                        <td colspan="4">No people found.</td>
                     </tr>
                     {% endfor %}
                 </tbody>
             </table>
-            </div>
-            <a href="/success/"><button class="cta-btn">Get Started</button></a>
         </div>
+        <a href="{% url 'success_page' %}"><button class="cta-btn">Get Started</button></a>
     </div>
-    <footer>
-        &copy; 2024 Mubeen Mehmood. All rights reserved.
-    </footer>
-</body>
-</html>
+</div>
+{% endblock content %}

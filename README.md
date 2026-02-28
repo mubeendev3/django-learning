@@ -19,6 +19,7 @@ A structured learning journal and technical reference for this Django practice p
 11. [Future Improvements](#11-future-improvements)
 12. [Personal Notes Section](#12-personal-notes-section)
 13. [Glossary](#13-glossary)
+14. [Progress Since Last README Update](#progress-since-last-readme-update)
 
 ---
 
@@ -26,7 +27,7 @@ A structured learning journal and technical reference for this Django practice p
 
 ### What This Project Is About
 
-This is a **Django 6.0** learning project: a small multi-page site with a home page, features page, contact form, and login page. It demonstrates the core Django workflow: **models → migrations → views → URLs → templates**, plus basic form handling and styling.
+This is a **Django 6.0** learning project: a small multi-page site with a home page, features page, contact form, login page, and a **recipe app** where users can add recipes (name, description, image). It demonstrates the core Django workflow: **models → migrations → views → URLs → templates**, plus **template inheritance**, **form POST handling with redirect**, and **file uploads** (media files).
 
 ### What I Was Trying to Learn
 
@@ -34,8 +35,10 @@ This is a **Django 6.0** learning project: a small multi-page site with a home p
 - Defining models and using migrations to change the database
 - Mapping URLs to views and passing data to templates
 - Using Django’s template language (loops, conditionals, context)
-- Building simple forms with CSRF protection
-- Organizing a project with multiple apps (`home`, `accounts`)
+- **Template inheritance** — a base template with `{% block %}` and child templates that `{% extends "base.html" %}`
+- Building forms with CSRF protection and **handling POST** (reading `request.POST`, creating model instances, **redirect** after submit)
+- **File uploads** — `request.FILES`, `enctype="multipart/form-data"`, `ImageField`, and serving media in development
+- Organizing a project with multiple apps (`home`, `accounts`, **`recipe`**)
 
 ### Technologies Used
 
@@ -67,9 +70,11 @@ This is a **Django 6.0** learning project: a small multi-page site with a home p
 - **Migrations** — Track and apply schema changes safely
 - **Views** — Functions that handle requests and return responses
 - **URL routing** — Map URLs to views (and optional `name` for reverse lookup)
-- **Templates** — HTML with variables, loops, and conditionals
+- **Templates** — HTML with variables, loops, and conditionals; **template inheritance** with `{% extends %}` and `{% block %}`
 - **Context** — Passing data from views to templates
 - **Forms and CSRF** — Safe POST handling with `{% csrf_token %}`
+- **POST handling and redirect** — Check `request.method == "POST"`, read `request.POST` / `request.FILES`, save data, then `redirect()` to avoid double submit
+- **Media files** — User-uploaded files (e.g. images) with `MEDIA_ROOT`, `MEDIA_URL`, and serving in DEBUG
 
 ### Skills I Practiced
 
@@ -77,9 +82,11 @@ This is a **Django 6.0** learning project: a small multi-page site with a home p
 - Writing models (`CharField`, `IntegerField`, `EmailField`, `TextField`), then `makemigrations` and `migrate`
 - Writing function-based views using `render()` and `HttpResponse()`
 - Defining `urlpatterns` and using `path()` and named routes
-- Using DTL: `{% for %}`, `{% if %}`, `{{ variable }}`, `{{ forloop.counter }}`, `{% empty %}`, `{% csrf_token %}`
+- Using DTL: `{% for %}`, `{% if %}`, `{{ variable }}`, `{{ forloop.counter }}`, `{% empty %}`, `{% csrf_token %}`, **`{% extends %}`, `{% block %}`, `{% url 'name' %}`**
+- **Template inheritance** — one `base.html` (nav, footer, styles), all pages extend it and fill blocks
 - Styling pages with custom CSS and Tailwind (CDN)
-- Keeping a consistent layout (nav, footer, gradient, cards) across pages
+- **Handling form POST** — read `request.POST` and `request.FILES`, create model instances, `redirect()` after success
+- **Serving uploaded images** — `MEDIA_ROOT`, `MEDIA_URL`, and `static()` in `urls.py` when `DEBUG` is True
 
 ### Problems I Tried to Solve
 
@@ -96,7 +103,7 @@ This is a **Django 6.0** learning project: a small multi-page site with a home p
 ### 3.1 Django Project and Apps
 
 - **What it is:** A **project** is the main config (settings, root URLs). **Apps** are reusable modules (models, views, templates) that you plug into the project.
-- **Where I used it:** One project `core` (from `django-admin startproject core`), two apps: `home` (main pages) and `accounts` (placeholder for user-related features).
+- **Where I used it:** One project `core` (from `django-admin startproject core`), three apps: `home` (main pages), `accounts` (placeholder), and **`recipe`** (recipe form and model).
 - **Why it matters:** Keeps code organized and reusable; each app can have its own models, views, and templates.
 
 ### 3.2 Models and the ORM
@@ -120,14 +127,14 @@ This is a **Django 6.0** learning project: a small multi-page site with a home p
 ### 3.5 URL Routing
 
 - **What it is:** **URLconf** maps URL paths to views. `path('url/', view_function, name='name')` lets you refer to the URL by name (e.g. in templates or `redirect()`) and keeps URLs in one place.
-- **Where I used it:** In `core/urls.py`: `''` → `home`, `'success/'` → `success_page`, `'features/'`, `'contact/'`, `'login/'` each to a view; `'admin/'` for Django admin.
-- **Why it matters:** Clean URLs and one place to change routing; named routes avoid hardcoding paths in templates.
+- **Where I used it:** In `core/urls.py`: `''` → `home`, `'success/'` → `success_page`, `'features/'`, `'contact/'`, `'login/'`, **`'recipe/'` → `recipe`**; `'admin/'` for Django admin. When `DEBUG` is True, `urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)` so uploaded media files are served.
+- **Why it matters:** Clean URLs and one place to change routing; named routes avoid hardcoding paths in templates; media serving in dev is configured in the same file.
 
 ### 3.6 Templates and the Django Template Language (DTL)
 
 - **What it is:** **Templates** are HTML files with placeholders and logic. DTL provides `{{ variable }}`, `{% for %}`, `{% if %}`, `{% empty %}`, `{% csrf_token %}`, and built-ins like `forloop.counter`.
-- **Where I used it:** `home/templates/`: `index.html` (people table, loop, age check for “Can Vote”), `features.html`, `contact.html`, `login.html` (all use `{% csrf_token %}` in forms).
-- **Why it matters:** Separates structure (HTML) from logic; keeps views thin and templates readable.
+- **Where I used it:** `home/templates/`: `base.html` (layout + blocks), `index.html`, `features.html`, `contact.html`, `login.html` (all extend `base.html` and use `{% csrf_token %}` where needed). `recipe/templates/recipes.html` also extends `base.html` and uses DTL for the recipe form.
+- **Why it matters:** Separates structure (HTML) from logic; keeps views thin and templates readable; inheritance removes duplication.
 
 ### 3.7 Context
 
@@ -144,7 +151,7 @@ This is a **Django 6.0** learning project: a small multi-page site with a home p
 ### 3.9 Apps and INSTALLED_APPS
 
 - **What it is:** Every app must be listed in `INSTALLED_APPS` so Django loads its models, templates, and static files. You can group “external” or “local” apps for clarity.
-- **Where I used it:** In `core/settings.py`, `EXTERNAL_APPS = ['accounts', 'home', 'django_extensions']` then `INSTALLED_APPS += EXTERNAL_APPS`.
+- **Where I used it:** In `core/settings.py`, `EXTERNAL_APPS = ['accounts', 'home', 'recipe', 'django_extensions']` then `INSTALLED_APPS += EXTERNAL_APPS`.
 - **Why it matters:** Unlisted apps are invisible to Django (migrations won’t run, templates won’t be found).
 
 ### 3.10 Static Files and Styling
@@ -153,15 +160,39 @@ This is a **Django 6.0** learning project: a small multi-page site with a home p
 - **Where I used it:** Home uses inline CSS and Montserrat; Features, Contact, and Login use Tailwind CDN plus small custom classes (e.g. `.gradient-bg`, `.card-glass`).
 - **Why it matters:** Understanding where styles live (inline vs static vs CDN) helps when you later use `collectstatic` and deployment.
 
+### 3.11 Template Inheritance
+
+- **What it is:** A **base template** defines the common layout (e.g. `<head>`, nav, footer) and **blocks** (`{% block title %}`, `{% block content %}`). Child templates use `{% extends "base.html" %}` and override blocks with `{% block content %}...{% endblock %}`.
+- **Where I used it:** `home/templates/base.html` has the nav (with `{% url 'home' %}`, `{% url 'features' %}`, etc.), active-link styling via `request.path`, footer, and blocks `title`, `content`, `extra_head`, `extra_js`. All pages (index, features, contact, login, and **recipe’s** `recipes.html`) extend it.
+- **Why it matters:** One place to change nav/footer; no duplicated layout; adding a new link (e.g. Recipe) is done once in the base.
+
+### 3.12 File Uploads and Media Files
+
+- **What it is:** **Media files** are user uploads (e.g. images). You set `MEDIA_ROOT` (where files are stored) and `MEDIA_URL` (URL prefix). In views you read files from `request.FILES`; in forms you use `enctype="multipart/form-data"`. For `ImageField`, Django (and Pillow) validate that the file is an image.
+- **Where I used it:** Recipe form has `<input type="file" name="recipe_image" accept="image/*">` and `enctype="multipart/form-data"`. View uses `request.FILES.get('recipe_image')` and `Recipe.objects.create(..., recipe_image=recipe_image)`. Model has `ImageField(upload_to='images/recipe')`. In `settings.py`: `MEDIA_ROOT = BASE_DIR / 'media'`, `MEDIA_URL = '/media/'`. In `urls.py`, when `DEBUG` is True, `urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)` so uploaded images are served at `/media/`.
+- **Why it matters:** POST data alone doesn’t include file contents; you must use `multipart/form-data` and `request.FILES`. Serving media in development is separate from static files.
+
+### 3.13 Redirect After POST
+
+- **What it is:** After successfully processing a POST (e.g. creating a record), return `redirect('url_name')` (or `redirect('/path/')`) instead of rendering the same form again. This avoids “resubmit form?” on refresh and gives a clean GET page.
+- **Where I used it:** In `recipe/views.py`, after `Recipe.objects.create(...)`, the view returns `return redirect("/recipe/")` so the user sees the recipe page again as a GET request.
+- **Why it matters:** Prevents double submission and follows the “POST/Redirect/GET” pattern.
+
 ---
 
 ## 4. Features Implemented
 
+### 4.0 Base Template (shared layout)
+
+- **Functionality:** Single layout used by all main pages. Provides nav (logo + links to Home, Features, Contact, Login, **Recipe**), active-link highlighting via `request.path`, footer, Tailwind + Montserrat, and blocks: `title`, `content`, `extra_head`, `extra_js`.
+- **Where it lives:** `home/templates/base.html`. All of index, features, contact, login, and recipe’s `recipes.html` use `{% extends "base.html" %}` and fill `{% block content %}` (and optionally `{% block title %}`).
+- **Why it matters:** One place to add/change nav links and styling; no duplicated header/footer across pages.
+
 ### 4.1 Home Page (`/`)
 
 - **Functionality:** Displays a list of people in a table with columns: No., Name, Age, Can Vote.
-- **Logic:** View builds a list of dicts (`people`) and passes it to `index.html`. Template loops over `people`, uses `forloop.counter` for the row number, and uses `{% if person.age >= 18 %}` for “Yes”/“No” and red background for under-18.
-- **Structure:** Nav (logo + links), hero section with table, “Get Started” button to `/success/`, footer.
+- **Logic:** View builds a list of dicts (`people`) and passes it to `index.html`. Template extends `base.html`, loops over `people`, uses `forloop.counter` for the row number, and uses `{% if person.age >= 18 %}` for “Yes”/“No” and red background for under-18.
+- **Structure:** Base layout + hero section with table, “Get Started” button to `/success/`.
 
 ### 4.2 Success Page (`/success/`)
 
@@ -171,30 +202,37 @@ This is a **Django 6.0** learning project: a small multi-page site with a home p
 ### 4.3 Features Page (`/features/`)
 
 - **Functionality:** Marketing-style grid of six feature cards (Fast & Reliable, Clean Design, Responsive, Secure, Customize, Support).
-- **Structure:** Same nav/footer as other pages; responsive grid (`grid-cols-1 sm:grid-cols-2 lg:grid-cols-3`); each card has icon, title, description and hover styles.
+- **Structure:** Extends `base.html`; responsive grid (`grid-cols-1 sm:grid-cols-2 lg:grid-cols-3`); each card has icon, title, description and hover styles.
 - **Tech:** Tailwind CDN, custom `.card-glass` and `.gradient-bg`, Montserrat.
 
 ### 4.4 Contact Page (`/contact/`)
 
 - **Functionality:** Contact info (address, email, phone) and a contact form (name, email, subject, message). Form uses `method="post"` and `{% csrf_token %}`; `action="#"` is placeholder until a view handles POST.
-- **Structure:** Two-column layout on desktop (info cards + form); form has labels, required fields, and a submit button.
+- **Structure:** Extends `base.html`; two-column layout on desktop (info cards + form); form has labels, required fields, and a submit button.
 - **Tech:** Same Tailwind + glass style as Features/Login.
 
 ### 4.5 Login Page (`/login/`)
 
 - **Functionality:** Login form (username/email, password, “Remember me”, “Forgot password?” / “Sign up” links). Form is POST with `{% csrf_token %}`; `action="#"` is placeholder.
-- **Structure:** Centered card, same nav/footer and styling as Contact/Features.
+- **Structure:** Extends `base.html`; centered card, same styling as Contact/Features.
 - **Tech:** Tailwind, `.card-glass`, focus styles on inputs.
 
 ### 4.6 Models (Database)
 
 - **Student:** `name` (CharField 100), `age` (IntegerField), `email` (EmailField 254), `address` (TextField, null/blank). No `__str__` in current code; can add for admin.
 - **Car:** `car_name` (CharField 100), `max_speed` (IntegerField, default 50), `__str__` returns `car_name`.
-- **Usage:** Models are defined and migrated; they are not yet used in views (e.g. no listing of students/cars on a page). Ready for admin registration and future views.
+- **Recipe** (in `recipe` app): `recipe_name` (CharField 500), `recipe_description` (TextField), `recipe_image` (ImageField, `upload_to='images/recipe'`), `__str__` returns `recipe_name`. **Used in the recipe view** — form POST creates new `Recipe` instances and saves uploaded images to `media/images/recipe/`.
+- **Usage:** Student and Car are defined and migrated but not used in views. Recipe is used by the recipe form and view.
 
-### 4.7 Django Admin
+### 4.7 Recipe Page (`/recipe/`) — NEW
 
-- **Status:** Admin is enabled (`admin.site.urls`), but `home` and `accounts` models are not registered in `admin.py`. You can register `Student` and `Car` in `home/admin.py` to manage them via `/admin/`.
+- **Functionality:** Form to add a recipe: name, description, and image file. On **GET**, the form is shown. On **POST**, the view reads `request.POST` (recipe_name, recipe_description) and `request.FILES` (recipe_image), creates a `Recipe` with `Recipe.objects.create(...)`, then **redirects** to `/recipe/` to avoid resubmit.
+- **Structure:** Extends `base.html`; single form with `enctype="multipart/form-data"`, `{% csrf_token %}`, text input, textarea, and file input (`accept="image/*"`). Styling matches other pages (card-glass, Tailwind).
+- **Tech:** File upload via `request.FILES`; images stored under `MEDIA_ROOT/images/recipe/` and served at `/media/images/recipe/...` when DEBUG is True.
+
+### 4.8 Django Admin
+
+- **Status:** Admin is enabled (`admin.site.urls`). `home` and `accounts` models are not registered in `admin.py`. You can register `Student`, `Car`, and **`Recipe`** in their respective `admin.py` to manage them via `/admin/`.
 
 ---
 
@@ -205,31 +243,31 @@ django-practice/
 ├── core/                          # Django project (config + root URLs)
 │   ├── core/                      # Project package
 │   │   ├── __init__.py
-│   │   ├── settings.py            # Main settings (apps, DB, templates, etc.)
-│   │   ├── urls.py                # Root URLconf: routes to home views + admin
+│   │   ├── settings.py            # Main settings (apps, DB, TEMPLATES, MEDIA_ROOT, MEDIA_URL)
+│   │   ├── urls.py                # Root URLconf: home + recipe + admin; static(media) when DEBUG
 │   │   ├── asgi.py                # ASGI entry for async servers
 │   │   └── wsgi.py                # WSGI entry for deployment
 │   ├── home/                      # Main app (pages + models)
 │   │   ├── migrations/            # Migration files (order matters)
-│   │   │   ├── 0001_initial.py
-│   │   │   ├── 0002_alter_student_address.py
-│   │   │   ├── 0003_remove_student_file.py
-│   │   │   └── 0004_car_alter_student_name.py
-│   │   ├── templates/             # Templates (DTL)
+│   │   │   ├── 0001_initial.py … 0004_car_alter_student_name.py
+│   │   ├── templates/
+│   │   │   ├── base.html          # Shared layout (nav, footer, blocks)
 │   │   │   ├── index.html
 │   │   │   ├── features.html
 │   │   │   ├── contact.html
 │   │   │   └── login.html
-│   │   ├── __init__.py
-│   │   ├── admin.py               # Register models for admin (currently empty)
-│   │   ├── apps.py                # App config (HomeConfig)
-│   │   ├── models.py              # Student, Car
-│   │   ├── tests.py               # Placeholder tests
-│   │   └── views.py               # home, success_page, features, contact, login_page
-│   ├── accounts/                  # Future auth/user app
-│   │   ├── admin.py, apps.py, models.py, tests.py, views.py  # Mostly placeholders
-│   ├── manage.py                  # CLI: runserver, migrate, makemigrations, etc.
-│   └── db.sqlite3                 # SQLite DB (created after migrate)
+│   │   ├── admin.py, apps.py, models.py (Student, Car), tests.py, views.py
+│   ├── recipe/                    # Recipe app (form + model + file upload)
+│   │   ├── migrations/
+│   │   │   └── 0001_initial.py    # Recipe model
+│   │   ├── templates/
+│   │   │   └── recipes.html       # Add-recipe form (extends base.html)
+│   │   ├── admin.py, apps.py, models.py (Recipe), tests.py, views.py (recipe view)
+│   ├── accounts/                  # Future auth/user app (placeholders)
+│   ├── media/                     # User uploads (created at runtime; recipe images go here)
+│   │   └── images/recipe/         # ImageField upload_to path
+│   ├── manage.py
+│   └── db.sqlite3
 └── venv/                          # Virtual environment (not in version control)
 ```
 
@@ -237,11 +275,12 @@ django-practice/
 
 | File | Purpose |
 |------|--------|
-| `core/settings.py` | INSTALLED_APPS, DATABASES, TEMPLATES, SECRET_KEY, DEBUG, etc. |
-| `core/urls.py` | Root URL routing; includes admin and home views. |
-| `home/views.py` | All page logic: data preparation and template rendering. |
-| `home/models.py` | Student and Car model definitions. |
-| `home/templates/*.html` | Page layout and DTL (variables, loops, CSRF). |
+| `core/settings.py` | INSTALLED_APPS (includes `recipe`), DATABASES, TEMPLATES, **MEDIA_ROOT**, **MEDIA_URL**, etc. |
+| `core/urls.py` | Root URL routing (home, recipe, admin); **static(media)** when DEBUG. |
+| `home/views.py` | Home page logic; `recipe/views.py` has recipe form GET/POST and redirect. |
+| `home/models.py` | Student, Car; **`recipe/models.py`** — Recipe (with ImageField). |
+| `home/templates/base.html` | **Base template** (nav with `{% url %}`, active state, blocks). |
+| `home/templates/*.html`, `recipe/templates/recipes.html` | Pages extending base; DTL, CSRF. |
 | `manage.py` | Entry point for Django commands (runserver, migrate, makemigrations, createsuperuser). |
 
 ---
@@ -282,6 +321,21 @@ django-practice/
 
 - **Decision:** People list is defined in code, not from the database.
 - **Reason:** Focus on flow (view → context → template); later you can replace with `Student.objects.all()` or similar.
+
+### 6.8 Base template in `home` app
+
+- **Decision:** Put `base.html` in `home/templates/` so it’s found by any app that uses `{% extends "base.html" %}` (Django searches all INSTALLED_APPS’ `templates/`).
+- **Reason:** Home is the “main” app; one base keeps nav/footer consistent. Recipe (and any future app) can extend it without duplicating layout.
+
+### 6.9 Media files and serving in DEBUG
+
+- **Decision:** Set `MEDIA_ROOT = BASE_DIR / 'media'` and `MEDIA_URL = '/media/'`. In `urls.py`, when `DEBUG` is True, append `static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)` to `urlpatterns`.
+- **Reason:** Uploaded recipe images need to be served; in development Django doesn’t serve MEDIA by default, so this line does it. In production you’d use the server (e.g. nginx) or a CDN.
+
+### 6.10 Explicit recipe view import in urls
+
+- **Decision:** Use `from recipe.views import recipe` (and keep `from home.views import *` or explicit home imports) in `core/urls.py`.
+- **Reason:** Clear which view handles `/recipe/`; avoids relying on wildcard import from recipe.
 
 ---
 
@@ -329,6 +383,20 @@ django-practice/
 - **Fix:** Run `makemigrations` after each logical change if you want separate steps; resolve conflicts with `makemigrations --merge` only if Django says so. Here, 0004 correctly depends on 0003.
 - **Learning:** Migrations are sequential; don’t delete or renumber them by hand; use `showmigrations` to see applied state.
 
+### 7.7 ImageField / Pillow (optional dependency)
+
+- **What happened:** After adding `ImageField` to the Recipe model and running `makemigrations`/`migrate`, you might see a warning or error that Pillow is required for ImageField.
+- **Why:** Django’s `ImageField` uses Pillow to validate and get dimensions of uploaded images. Without it, basic file storage can still work in some setups, but best practice is to install Pillow.
+- **Fix:** Run `pip install Pillow`. Then (if needed) run `makemigrations` and `migrate` again.
+- **Learning:** For `ImageField`, add Pillow to your environment (and later to `requirements.txt`).
+
+### 7.8 Template not found for “base.html” from recipe app
+
+- **What happened:** Recipe template does `{% extends "base.html" %}` but Django might not find it if the base lived only in recipe’s templates and was named differently, or if app order was wrong.
+- **Why:** With `APP_DIRS` True, Django looks in every app’s `templates/` folder. Putting `base.html` in `home/templates/` (home is in INSTALLED_APPS) makes it available to all apps.
+- **Fix:** Keep a single `base.html` in one app (e.g. `home/templates/base.html`) so all apps can extend it. Ensure that app is in `INSTALLED_APPS`.
+- **Learning:** Shared templates like base can live in one app and be reused by others; template name is just `"base.html"`, not `"home/base.html"`, so the first app that has `templates/base.html` wins.
+
 ---
 
 ## 8. Terminal Commands Used
@@ -349,6 +417,8 @@ django-practice/
 | `python manage.py shell` | Opens a Python shell with Django and project settings loaded. |
 | `python manage.py shell_plus` | (With django_extensions) Opens shell with models already imported. |
 | `python manage.py check` | Checks for common project/config issues without running the server. |
+| `pip install Pillow` | Installs Pillow (required for Django’s `ImageField` to validate images). |
+| `python manage.py startapp recipe` | Creates the `recipe` app (already done). |
 
 ---
 
@@ -379,6 +449,11 @@ django-practice/
 - **Difficulty:** Contact and Login forms need to look and behave like real forms but don’t process POST yet.
 - **Approach:** Used `method="post"`, `{% csrf_token %}`, and `action="#"` so the structure is correct. When you add POST handling, point `action` to a URL and add a view that checks `request.method` and processes the form.
 
+### 9.6 File upload form (recipe)
+
+- **Difficulty:** Getting the browser to send the file and Django to receive it.
+- **Approach:** Form must have `enctype="multipart/form-data"`; view reads `request.FILES.get('recipe_image')` and passes it to `Recipe.objects.create(...)`. Set `MEDIA_ROOT` and `MEDIA_URL` and serve media in dev with `static(MEDIA_URL, document_root=MEDIA_ROOT)` in `urls.py`.
+
 ---
 
 ## 10. Key Learnings
@@ -389,22 +464,26 @@ django-practice/
 4. **Template names are resolved per app:** With `APP_DIRS` True, `render(request, 'index.html')` from the `home` app looks in `home/templates/index.html`.
 5. **CSRF is required for POST forms:** Always include `{% csrf_token %}` in forms that POST.
 6. **Apps must be in INSTALLED_APPS:** Otherwise migrations and template discovery won’t work for that app.
-7. **Named URLs are best practice:** Use `name='home'` etc. so you can use `{% url 'home' %}` and `redirect('home')` instead of hardcoding paths.
-8. **One project, many apps:** Keeps features (e.g. home vs accounts) separated and reusable.
+7. **Named URLs are best practice:** Use `name='home'` etc. so you can use `{% url 'home' %}` and `redirect('home')` instead of hardcoding paths. The base template uses `{% url 'home' %}`, `{% url 'recipe' %}`, etc., so adding a new page only requires one nav change.
+8. **One project, many apps:** Keeps features (e.g. home vs recipe) separated and reusable.
+9. **Template inheritance:** One base template with `{% block %}` and child templates with `{% extends "base.html" %}` removes duplication and keeps nav/footer in one place.
+10. **Redirect after POST:** After saving form data, return `redirect('url_name')` so a refresh doesn’t resubmit the form (POST/Redirect/GET).
+11. **File uploads need `enctype="multipart/form-data"`** and `request.FILES`; use `MEDIA_ROOT`/`MEDIA_URL` and serve media in dev with `static()` in `urls.py`.
 
 ---
 
 ## 11. Future Improvements
 
-- **Register models in admin:** In `home/admin.py`, register `Student` and `Car` so you can manage them via `/admin/`.
+- **Register models in admin:** In `home/admin.py` register `Student` and `Car`; in `recipe/admin.py` register `Recipe`, so you can manage them via `/admin/`.
 - **Use models in views:** Replace the hardcoded `people` list with `Student.objects.all()` (or a filtered queryset) and adjust the template if needed.
-- **Handle form POST:** Add URL and view for contact form (and login) that handle `request.method == 'POST'`, validate input, and either save (e.g. to a ContactMessage model) or show errors.
-- **Add requirements.txt:** Run `pip freeze > requirements.txt` so others (and future you) can install the same packages with `pip install -r requirements.txt`.
-- **Use URL names in templates:** Replace hrefs like `/features/` with `{% url 'features' %}` for maintainability.
-- **Base template:** Extract common nav/footer/head into a `base.html` and use `{% extends "base.html" %}` and `{% block content %}` in each page to avoid duplication.
-- **Static files properly:** Move repeated CSS into `static/css/` and use `{% load static %}` and `<link href="{% static 'css/style.css' %}">`; later add Tailwind build if needed.
-- **Tests:** Add unit tests for views (status code, template used, context) and for models in `home/tests.py` and `accounts/tests.py`.
-- **Version control:** Initialize Git, add a `.gitignore` (e.g. `venv/`, `db.sqlite3`, `__pycache__/`, `.env`), and commit the project.
+- **List recipes on recipe page:** On GET for `/recipe/`, pass `Recipe.objects.all()` (or ordered) to the template and display a list or grid of existing recipes above or below the form.
+- **Handle form POST for contact/login:** Add view logic for contact form (and login) that handle `request.method == 'POST'`, validate input, and either save (e.g. to a ContactMessage model) or show errors.
+- **Add requirements.txt:** Run `pip freeze > requirements.txt` (include `Pillow` if using ImageField) so others can install with `pip install -r requirements.txt`.
+- **Use URL names in templates:** Base template already uses `{% url 'home' %}`, etc.; any remaining hardcoded paths can be switched to `{% url 'name' %}`.
+- **Base template:** ✅ Done — `home/templates/base.html` with blocks; all main pages extend it.
+- **Static files properly:** Move repeated CSS into `static/css/` and use `{% load static %}`; later add Tailwind build if needed.
+- **Tests:** Add unit tests for views (status code, template used, context, redirect after recipe POST) and for models in `home/tests.py`, `recipe/tests.py`, and `accounts/tests.py`.
+- **Version control:** Initialize Git if not already; use the project `.gitignore` (e.g. `venv/`, `db.sqlite3`, `media/` if you don’t want uploads in repo, `__pycache__/`, `.env`), and commit the project.
 
 ---
 
@@ -414,10 +493,11 @@ django-practice/
 
 - **New app:** `python manage.py startapp appname` → add to `INSTALLED_APPS` → create models/views/templates as needed.
 - **New model or field change:** Edit `models.py` → `python manage.py makemigrations` → `python manage.py migrate`.
-- **New page:** Add view in the right app → add `path()` in `urls.py` (or app urls + `include`) → create template in that app’s `templates/`.
+- **New page:** Add view in the right app → add `path()` in `urls.py` (or app urls + `include`) → create template (usually `{% extends "base.html" %}` and `{% block content %}...`) in that app’s `templates/`.
 - **Pass data to template:** In the view: `return render(request, 'page.html', {'key': value})`. In the template: `{{ key }}`, `{% for x in key %}`, etc.
-- **Form that will POST:** Put `{% csrf_token %}` inside the form; use `method="post"` and set `action` to the URL that will handle it. In the view, check `if request.method == 'POST':` and process, then redirect or re-render with errors.
-- **Template not found:** Check that the app is in `INSTALLED_APPS` and that the template path matches: with `APP_DIRS` True it’s `appname/templates/<name_you_passed>.html`.
+- **Form that will POST:** Put `{% csrf_token %}` inside the form; use `method="post"`. For **file uploads** add `enctype="multipart/form-data"`. In the view: `if request.method == 'POST':` → read `request.POST` and `request.FILES` → save (e.g. `Model.objects.create(...)`) → **`return redirect('url_name')`** so refresh doesn’t resubmit.
+- **Template not found:** Check that the app is in `INSTALLED_APPS` and that the template path matches: with `APP_DIRS` True it’s `appname/templates/<name_you_passed>.html`. For `base.html`, it’s in `home/templates/base.html` and used by all apps.
+- **Serving uploaded files in dev:** In `urls.py`, add `if settings.DEBUG: urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)` (and set `MEDIA_ROOT`, `MEDIA_URL` in settings).
 
 ### Mental model
 
@@ -450,6 +530,19 @@ django-practice/
 | **URLconf** | URL configuration; the `urlpatterns` list that maps URLs to views. |
 | **View** | A callable that receives a request and returns a response; here, functions in `views.py`. |
 | **WSGI/ASGI** | Interfaces for deploying Django (e.g. with Gunicorn or Uvicorn). |
+| **Media files** | User-uploaded files; stored in `MEDIA_ROOT`, URL prefix `MEDIA_URL`; in dev often served via `static()` in urls. |
+| **Pillow** | Python image library; required by Django’s `ImageField` for image validation/dimensions. |
+| **POST/Redirect/GET** | Pattern: form POST → process → redirect to a GET URL so refresh doesn’t resubmit. |
+
+---
+
+## Progress Since Last README Update
+
+- **Recipe app added:** New app `recipe` with `Recipe` model (name, description, image), form in `recipes.html`, and view that handles GET (show form) and POST (create recipe, then redirect to `/recipe/`).
+- **Base template:** `home/templates/base.html` created; all main pages (index, features, contact, login, recipes) now extend it. Nav uses `{% url 'name' %}` and highlights active page via `request.path`; Recipe link added.
+- **File uploads:** Recipe form uses `enctype="multipart/form-data"` and `<input type="file">`; view uses `request.FILES.get('recipe_image')`; `ImageField(upload_to='images/recipe')`; `MEDIA_ROOT`/`MEDIA_URL` and `static()` in `urls.py` for serving uploads in development.
+- **Settings:** `recipe` added to `EXTERNAL_APPS`; `MEDIA_ROOT` and `MEDIA_URL` added.
+- **URLs:** `path('recipe/', recipe, name='recipe')` and `urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)` when DEBUG.
 
 ---
 

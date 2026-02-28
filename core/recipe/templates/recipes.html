@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% block title %}
+    Recipe | Mubeen's Home
+{% endblock title %}
+{% block content %}
+    <div class="px-4 sm:px-6 lg:px-8 py-12 md:py-16">
+        <section class="max-w-2xl mx-auto">
+            <div class="text-center mb-12 md:mb-16">
+                <h1 class="text-3xl sm:text-4xl md:text-5xl font-extrabold tracking-tight mb-4">Add a Recipe</h1>
+                <p class="text-white/80 text-lg md:text-xl">Share your favorite recipe with name, description, and image.</p>
+            </div>
+            <form class="card-glass rounded-2xl p-6 md:p-8 space-y-5"
+                  action="#"
+                  method="post"
+                  enctype="multipart/form-data">
+                {% csrf_token %}
+                <div>
+                    <label for="recipe-name"
+                           class="block text-sm font-semibold mb-2 text-white/90">Recipe Name</label>
+                    <input type="text"
+                           id="recipe-name"
+                           name="recipe_name"
+                           required
+                           class="w-full px-4 py-3 rounded-xl bg-white/10 border border-white/20 text-white placeholder-white/50 focus:border-amber-300/60 focus:ring-2 focus:ring-amber-300/30 transition"
+                           placeholder="e.g. Chocolate Chip Cookies">
+                </div>
+                <div>
+                    <label for="recipe-description"
+                           class="block text-sm font-semibold mb-2 text-white/90">Recipe Description</label>
+                    <textarea id="recipe-description"
+                              name="recipe_description"
+                              rows="5"
+                              required
+                              class="w-full px-4 py-3 rounded-xl bg-white/10 border border-white/20 text-white placeholder-white/50 focus:border-amber-300/60 focus:ring-2 focus:ring-amber-300/30 transition resize-y min-h-[120px]"
+                              placeholder="Describe the recipe, ingredients, and steps..."></textarea>
+                </div>
+                <div>
+                    <label for="recipe-image"
+                           class="block text-sm font-semibold mb-2 text-white/90">Recipe Image</label>
+                    <input type="file"
+                           id="recipe-image"
+                           name="recipe_image"
+                           accept="image/*"
+                           class="w-full px-4 py-3 rounded-xl bg-white/10 border border-white/20 text-white file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-white/20 file:text-white file:font-semibold file:cursor-pointer hover:file:bg-white/30 focus:border-amber-300/60 focus:ring-2 focus:ring-amber-300/30 transition">
+                </div>
+                <button type="submit"
+                        class="w-full sm:w-auto px-8 py-3.5 rounded-full font-bold text-gray-900 bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-500 hover:to-amber-400 shadow-lg hover:shadow-xl transition-all">
+                    Submit Recipe
+                </button>
+            </form>
+        </section>
+    </div>
+{% endblock content %}
