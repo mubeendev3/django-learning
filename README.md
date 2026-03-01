@@ -27,7 +27,7 @@ A structured learning journal and technical reference for this Django practice p
 
 ### What This Project Is About
 
-This is a **Django 6.0** learning project: a small multi-page site with a home page, features page, contact form, login page, and a **recipe app** where users can add recipes (name, description, image). It demonstrates the core Django workflow: **models → migrations → views → URLs → templates**, plus **template inheritance**, **form POST handling with redirect**, and **file uploads** (media files).
+This is a **Django 6.0** learning project: a small multi-page site with a home page, features page, contact form, login page, and a **recipe app** where users can **create, list, update, and delete** recipes (name, description, image). It demonstrates the core Django workflow: **models → migrations → views → URLs → templates**, plus **template inheritance**, **form POST handling with redirect**, **file uploads** (media files), and **URL path parameters** (`<int:id>`) for detail/update/delete views.
 
 ### What I Was Trying to Learn
 
@@ -38,6 +38,8 @@ This is a **Django 6.0** learning project: a small multi-page site with a home p
 - **Template inheritance** — a base template with `{% block %}` and child templates that `{% extends "base.html" %}`
 - Building forms with CSRF protection and **handling POST** (reading `request.POST`, creating model instances, **redirect** after submit)
 - **File uploads** — `request.FILES`, `enctype="multipart/form-data"`, `ImageField`, and serving media in development
+- **CRUD-style flows** — list recipes, add new, **update** existing (form pre-filled by id), **delete** by id
+- **URL path converters** — `<int:id>` in URLs and views that fetch one object by id (`Recipe.objects.get(id=id)`)
 - Organizing a project with multiple apps (`home`, `accounts`, **`recipe`**)
 
 ### Technologies Used
@@ -75,6 +77,7 @@ This is a **Django 6.0** learning project: a small multi-page site with a home p
 - **Forms and CSRF** — Safe POST handling with `{% csrf_token %}`
 - **POST handling and redirect** — Check `request.method == "POST"`, read `request.POST` / `request.FILES`, save data, then `redirect()` to avoid double submit
 - **Media files** — User-uploaded files (e.g. images) with `MEDIA_ROOT`, `MEDIA_URL`, and serving in DEBUG
+- **Path parameters** — URLs like `update_recipe/<int:id>/` that pass an id to the view; **get single object** with `Model.objects.get(id=id)`; **update** (assign attributes, `save()`) and **delete** (`.delete()`)
 
 ### Skills I Practiced
 
@@ -87,6 +90,7 @@ This is a **Django 6.0** learning project: a small multi-page site with a home p
 - Styling pages with custom CSS and Tailwind (CDN)
 - **Handling form POST** — read `request.POST` and `request.FILES`, create model instances, `redirect()` after success
 - **Serving uploaded images** — `MEDIA_ROOT`, `MEDIA_URL`, and `static()` in `urls.py` when `DEBUG` is True
+- **CRUD in views** — list (`Recipe.objects.all()`), create (`Recipe.objects.create(...)`), update (get by id, set fields, `save()`), delete (get by id, `.delete()`); **optional file update** (only replace image if `request.FILES.get('recipe_image')` is present)
 
 ### Problems I Tried to Solve
 
@@ -95,6 +99,8 @@ This is a **Django 6.0** learning project: a small multi-page site with a home p
 - How to add a second model (`Car`) and keep migrations in order
 - How to make the site responsive and visually consistent
 - How to protect forms with CSRF for future backend handling
+- How to **list** recipes on the same page as the add form, with **Update** and **Delete** links using `{% url 'update_recipe' recipe.id %}` and `{% url 'delete_recipe' recipe.id %}`
+- How to use **path parameters** (`<int:id>`) for update and delete views
 
 ---
 
@@ -127,8 +133,8 @@ This is a **Django 6.0** learning project: a small multi-page site with a home p
 ### 3.5 URL Routing
 
 - **What it is:** **URLconf** maps URL paths to views. `path('url/', view_function, name='name')` lets you refer to the URL by name (e.g. in templates or `redirect()`) and keeps URLs in one place.
-- **Where I used it:** In `core/urls.py`: `''` → `home`, `'success/'` → `success_page`, `'features/'`, `'contact/'`, `'login/'`, **`'recipe/'` → `recipe`**; `'admin/'` for Django admin. When `DEBUG` is True, `urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)` so uploaded media files are served.
-- **Why it matters:** Clean URLs and one place to change routing; named routes avoid hardcoding paths in templates; media serving in dev is configured in the same file.
+- **Where I used it:** In `core/urls.py`: `''` → `home`, `'success/'` → `success_page`, `'features/'`, `'contact/'`, `'login/'`, **`'recipe/'` → `recipe`**, **`'delete_recipe/<int:id>/'` → `delete_recipe`**, **`'update_recipe/<int:id>/'` → `update_recipe`**; `'admin/'` for Django admin. When `DEBUG` is True, `urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)` so uploaded media files are served.
+- **Why it matters:** Clean URLs and one place to change routing; named routes and **path converters** (`<int:id>`) support detail/update/delete; media serving in dev is configured in the same file.
 
 ### 3.6 Templates and the Django Template Language (DTL)
 
@@ -175,8 +181,26 @@ This is a **Django 6.0** learning project: a small multi-page site with a home p
 ### 3.13 Redirect After POST
 
 - **What it is:** After successfully processing a POST (e.g. creating a record), return `redirect('url_name')` (or `redirect('/path/')`) instead of rendering the same form again. This avoids “resubmit form?” on refresh and gives a clean GET page.
-- **Where I used it:** In `recipe/views.py`, after `Recipe.objects.create(...)`, the view returns `return redirect("/recipe/")` so the user sees the recipe page again as a GET request.
+- **Where I used it:** In `recipe/views.py`, after `Recipe.objects.create(...)`, the view returns `return redirect("/recipe/")`. Same after `update_recipe` and `delete_recipe`.
 - **Why it matters:** Prevents double submission and follows the “POST/Redirect/GET” pattern.
+
+### 3.14 URL Path Converters and Detail Views
+
+- **What it is:** **Path converters** in URLs (e.g. `<int:id>`) capture part of the URL and pass it to the view as a keyword argument. Views use it to fetch a single object: `Model.objects.get(id=id)`.
+- **Where I used it:** `path('delete_recipe/<int:id>/', ...)` and `path('update_recipe/<int:id>/', ...)`. Views receive `request, id` and use `Recipe.objects.get(id=id)`. In templates: `{% url 'delete_recipe' recipe.id %}` and `{% url 'update_recipe' recipe.id %}`.
+- **Why it matters:** Clean URLs for one-resource actions; `<int:id>` ensures the segment is an integer.
+
+### 3.15 Update vs Create (Same Form, Different Logic)
+
+- **What it is:** **Update** loads an existing instance, shows a form pre-filled with its data, and on POST updates that instance (assign attributes, then `save()`). For optional file upload, only update the image if the user submitted one.
+- **Where I used it:** `update_recipe(request, id)` gets the recipe; GET passes `{'recipe': queryset}` to `update_recipe.html` (inputs use `value="{{ recipe.recipe_name }}"` and description in textarea). POST: update fields, `if recipe_image: queryset.recipe_image = recipe_image`, then `queryset.save()`, `redirect("/recipe/")`.
+- **Why it matters:** Same form pattern as create but for editing; optional file avoids overwriting when the user doesn't change the image.
+
+### 3.16 Delete (Get and Delete)
+
+- **What it is:** A view that fetches one object by id, calls `.delete()`, then redirects. Linked from the list with a URL that includes the id.
+- **Where I used it:** `delete_recipe(request, id)` does `Recipe.objects.get(id=id)`, `queryset.delete()`, then `redirect("/recipe/")`. Recipe list has a Delete link with `{% url 'delete_recipe' recipe.id %}`.
+- **Why it matters:** Completes basic CRUD; simple pattern for "remove this record."
 
 ---
 
@@ -224,13 +248,24 @@ This is a **Django 6.0** learning project: a small multi-page site with a home p
 - **Recipe** (in `recipe` app): `recipe_name` (CharField 500), `recipe_description` (TextField), `recipe_image` (ImageField, `upload_to='images/recipe'`), `__str__` returns `recipe_name`. **Used in the recipe view** — form POST creates new `Recipe` instances and saves uploaded images to `media/images/recipe/`.
 - **Usage:** Student and Car are defined and migrated but not used in views. Recipe is used by the recipe form and view.
 
-### 4.7 Recipe Page (`/recipe/`) — NEW
+### 4.7 Recipe Page (`/recipe/`)
 
-- **Functionality:** Form to add a recipe: name, description, and image file. On **GET**, the form is shown. On **POST**, the view reads `request.POST` (recipe_name, recipe_description) and `request.FILES` (recipe_image), creates a `Recipe` with `Recipe.objects.create(...)`, then **redirects** to `/recipe/` to avoid resubmit.
-- **Structure:** Extends `base.html`; single form with `enctype="multipart/form-data"`, `{% csrf_token %}`, text input, textarea, and file input (`accept="image/*"`). Styling matches other pages (card-glass, Tailwind).
-- **Tech:** File upload via `request.FILES`; images stored under `MEDIA_ROOT/images/recipe/` and served at `/media/images/recipe/...` when DEBUG is True.
+- **Functionality:** **List + Create.** On **GET**, the view passes `Recipe.objects.all()` as `recipes` and renders `recipes.html`, which shows (1) the “Add a Recipe” form and (2) a **table of all recipes** (#, name, description, image thumbnail, **Actions**). On **POST**, the view creates a new recipe and redirects to `/recipe/`. Table rows link to **Delete** (`{% url 'delete_recipe' recipe.id %}`) and **Update** (`{% url 'update_recipe' recipe.id %}`). Recipe images are shown with `{{ recipe.recipe_image.url }}` in an `<img>` tag.
+- **Structure:** Extends `base.html`; form (same as before) plus a table looping over `recipes` with Delete/Update links. Styling matches other pages (card-glass, Tailwind).
+- **Tech:** List via context `{'recipes': queryset}`; file upload and media as before.
 
-### 4.8 Django Admin
+### 4.8 Update Recipe Page (`/update_recipe/<id>/`)
+
+- **Functionality:** **Edit one recipe by id.** GET: view gets `Recipe.objects.get(id=id)`, passes `{'recipe': queryset}` to `update_recipe.html`, which shows a form pre-filled with `value="{{ recipe.recipe_name }}"` and `{{ recipe.recipe_description }}` in the textarea; image field is optional (leave blank to keep current). POST: view updates that recipe’s name/description, updates image only if `request.FILES.get('recipe_image')` is present, then `save()` and `redirect("/recipe/")`.
+- **Structure:** Extends `base.html`; same form layout as add-recipe but with pre-filled values and “Update Recipe” submit button. Template: `recipe/templates/update_recipe.html`.
+- **Tech:** Path parameter `<int:id>`; get single object; conditional file update.
+
+### 4.9 Delete Recipe
+
+- **Functionality:** **Remove one recipe by id.** View `delete_recipe(request, id)` gets the recipe with `Recipe.objects.get(id=id)`, calls `queryset.delete()`, then `redirect("/recipe/")`. Triggered by a link from the recipe list: `{% url 'delete_recipe' recipe.id %}` (URL pattern `delete_recipe/<int:id>/`).
+- **Tech:** Path parameter `<int:id>`; no template (redirect only).
+
+### 4.10 Django Admin
 
 - **Status:** Admin is enabled (`admin.site.urls`). `home` and `accounts` models are not registered in `admin.py`. You can register `Student`, `Car`, and **`Recipe`** in their respective `admin.py` to manage them via `/admin/`.
 
@@ -257,12 +292,13 @@ django-practice/
 │   │   │   ├── contact.html
 │   │   │   └── login.html
 │   │   ├── admin.py, apps.py, models.py (Student, Car), tests.py, views.py
-│   ├── recipe/                    # Recipe app (form + model + file upload)
+│   ├── recipe/                    # Recipe app (CRUD: list, add, update, delete)
 │   │   ├── migrations/
 │   │   │   └── 0001_initial.py    # Recipe model
 │   │   ├── templates/
-│   │   │   └── recipes.html       # Add-recipe form (extends base.html)
-│   │   ├── admin.py, apps.py, models.py (Recipe), tests.py, views.py (recipe view)
+│   │   │   ├── recipes.html       # Add form + table of recipes (Delete/Update links)
+│   │   │   └── update_recipe.html  # Edit form pre-filled by id
+│   │   ├── admin.py, apps.py, models.py (Recipe), tests.py, views.py (recipe, delete_recipe, update_recipe)
 │   ├── accounts/                  # Future auth/user app (placeholders)
 │   ├── media/                     # User uploads (created at runtime; recipe images go here)
 │   │   └── images/recipe/         # ImageField upload_to path
@@ -276,11 +312,11 @@ django-practice/
 | File | Purpose |
 |------|--------|
 | `core/settings.py` | INSTALLED_APPS (includes `recipe`), DATABASES, TEMPLATES, **MEDIA_ROOT**, **MEDIA_URL**, etc. |
-| `core/urls.py` | Root URL routing (home, recipe, admin); **static(media)** when DEBUG. |
-| `home/views.py` | Home page logic; `recipe/views.py` has recipe form GET/POST and redirect. |
+| `core/urls.py` | Root URL routing (home, recipe, **delete_recipe/<int:id>/**, **update_recipe/<int:id>/**, admin); **static(media)** when DEBUG. |
+| `home/views.py` | Home page logic; **`recipe/views.py`** has recipe (list+create), delete_recipe(id), update_recipe(id). |
 | `home/models.py` | Student, Car; **`recipe/models.py`** — Recipe (with ImageField). |
 | `home/templates/base.html` | **Base template** (nav with `{% url %}`, active state, blocks). |
-| `home/templates/*.html`, `recipe/templates/recipes.html` | Pages extending base; DTL, CSRF. |
+| `home/templates/*.html`, `recipe/templates/recipes.html`, `recipe/templates/update_recipe.html` | Pages extending base; DTL, CSRF, `{% url '...' recipe.id %}`. |
 | `manage.py` | Entry point for Django commands (runserver, migrate, makemigrations, createsuperuser). |
 
 ---
@@ -334,8 +370,13 @@ django-practice/
 
 ### 6.10 Explicit recipe view import in urls
 
-- **Decision:** Use `from recipe.views import recipe` (and keep `from home.views import *` or explicit home imports) in `core/urls.py`.
-- **Reason:** Clear which view handles `/recipe/`; avoids relying on wildcard import from recipe.
+- **Decision:** Use `from recipe.views import *` (or explicit imports: recipe, delete_recipe, update_recipe) in `core/urls.py`.
+- **Reason:** Clear which views handle recipe URLs; path converters need the same view name in `path()` and in `{% url %}`.
+
+### 6.11 Path converter `<int:id>` for update and delete
+
+- **Decision:** Use `path('delete_recipe/<int:id>/', ...)` and `path('update_recipe/<int:id>/', ...)` so the view receives an integer `id` and invalid URLs (e.g. `update_recipe/abc/`) are not matched.
+- **Reason:** Type safety and clean URLs; views use `Recipe.objects.get(id=id)` to fetch the single record.
 
 ---
 
@@ -390,7 +431,14 @@ django-practice/
 - **Fix:** Run `pip install Pillow`. Then (if needed) run `makemigrations` and `migrate` again.
 - **Learning:** For `ImageField`, add Pillow to your environment (and later to `requirements.txt`).
 
-### 7.8 Template not found for “base.html” from recipe app
+### 7.8 Using `<id>` vs `<int:id>` in URL patterns
+
+- **What happened:** If you use `path('delete_recipe/<id>/', ...)`, the view receives `id` as a string. Non-numeric URLs can match and cause ValueError or DoesNotExist.
+- **Why:** The default path converter is `str`. `<int:id>` restricts the segment to integers.
+- **Fix:** Use `path('delete_recipe/<int:id>/', ...)` and `path('update_recipe/<int:id>/', ...)`.
+- **Learning:** Path converters (`int`, `slug`, `uuid`) improve URL clarity and validation.
+
+### 7.9 Template not found for “base.html” from recipe app
 
 - **What happened:** Recipe template does `{% extends "base.html" %}` but Django might not find it if the base lived only in recipe’s templates and was named differently, or if app order was wrong.
 - **Why:** With `APP_DIRS` True, Django looks in every app’s `templates/` folder. Putting `base.html` in `home/templates/` (home is in INSTALLED_APPS) makes it available to all apps.
@@ -469,6 +517,8 @@ django-practice/
 9. **Template inheritance:** One base template with `{% block %}` and child templates with `{% extends "base.html" %}` removes duplication and keeps nav/footer in one place.
 10. **Redirect after POST:** After saving form data, return `redirect('url_name')` so a refresh doesn’t resubmit the form (POST/Redirect/GET).
 11. **File uploads need `enctype="multipart/form-data"`** and `request.FILES`; use `MEDIA_ROOT`/`MEDIA_URL` and serve media in dev with `static()` in `urls.py`.
+12. **CRUD pattern:** List (queryset in context), Create (POST → create → redirect), Update (GET one by id, pre-fill form; POST update fields, save, redirect), Delete (GET by id, delete, redirect). Use `<int:id>` in URLs and `{% url 'name' object.id %}` in templates.
+13. **Path converters** like `<int:id>` pass typed arguments to the view and restrict which URLs match.
 
 ---
 
@@ -476,13 +526,14 @@ django-practice/
 
 - **Register models in admin:** In `home/admin.py` register `Student` and `Car`; in `recipe/admin.py` register `Recipe`, so you can manage them via `/admin/`.
 - **Use models in views:** Replace the hardcoded `people` list with `Student.objects.all()` (or a filtered queryset) and adjust the template if needed.
-- **List recipes on recipe page:** On GET for `/recipe/`, pass `Recipe.objects.all()` (or ordered) to the template and display a list or grid of existing recipes above or below the form.
+- **List recipes on recipe page:** Done — recipe page shows a table of all recipes with Delete and Update links.
 - **Handle form POST for contact/login:** Add view logic for contact form (and login) that handle `request.method == 'POST'`, validate input, and either save (e.g. to a ContactMessage model) or show errors.
 - **Add requirements.txt:** Run `pip freeze > requirements.txt` (include `Pillow` if using ImageField) so others can install with `pip install -r requirements.txt`.
 - **Use URL names in templates:** Base template already uses `{% url 'home' %}`, etc.; any remaining hardcoded paths can be switched to `{% url 'name' %}`.
 - **Base template:** ✅ Done — `home/templates/base.html` with blocks; all main pages extend it.
 - **Static files properly:** Move repeated CSS into `static/css/` and use `{% load static %}`; later add Tailwind build if needed.
 - **Tests:** Add unit tests for views (status code, template used, context, redirect after recipe POST) and for models in `home/tests.py`, `recipe/tests.py`, and `accounts/tests.py`.
+- **Handle invalid recipe id:** For `update_recipe` and `delete_recipe`, use `get_object_or_404(Recipe, id=id)` instead of `Recipe.objects.get(id=id)` so invalid ids return 404.
 - **Version control:** Initialize Git if not already; use the project `.gitignore` (e.g. `venv/`, `db.sqlite3`, `media/` if you don’t want uploads in repo, `__pycache__/`, `.env`), and commit the project.
 
 ---
@@ -533,16 +584,18 @@ django-practice/
 | **Media files** | User-uploaded files; stored in `MEDIA_ROOT`, URL prefix `MEDIA_URL`; in dev often served via `static()` in urls. |
 | **Pillow** | Python image library; required by Django’s `ImageField` for image validation/dimensions. |
 | **POST/Redirect/GET** | Pattern: form POST → process → redirect to a GET URL so refresh doesn’t resubmit. |
+| **Path converter** | URL segment like `<int:id>` or `<slug:slug>` that captures part of the path and passes it to the view as a typed argument. |
+| **CRUD** | Create, Read (list/detail), Update, Delete — the basic operations on a resource (e.g. recipes). |
 
 ---
 
 ## Progress Since Last README Update
 
-- **Recipe app added:** New app `recipe` with `Recipe` model (name, description, image), form in `recipes.html`, and view that handles GET (show form) and POST (create recipe, then redirect to `/recipe/`).
-- **Base template:** `home/templates/base.html` created; all main pages (index, features, contact, login, recipes) now extend it. Nav uses `{% url 'name' %}` and highlights active page via `request.path`; Recipe link added.
-- **File uploads:** Recipe form uses `enctype="multipart/form-data"` and `<input type="file">`; view uses `request.FILES.get('recipe_image')`; `ImageField(upload_to='images/recipe')`; `MEDIA_ROOT`/`MEDIA_URL` and `static()` in `urls.py` for serving uploads in development.
-- **Settings:** `recipe` added to `EXTERNAL_APPS`; `MEDIA_ROOT` and `MEDIA_URL` added.
-- **URLs:** `path('recipe/', recipe, name='recipe')` and `urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)` when DEBUG.
+- **Recipe list on recipe page:** On GET, `/recipe/` now passes `Recipe.objects.all()` as `recipes` to the template. `recipes.html` shows the add form plus a **table** of all recipes (name, description, image thumbnail) with **Delete** and **Update** links using `{% url 'delete_recipe' recipe.id %}` and `{% url 'update_recipe' recipe.id %}`. Images displayed with `{{ recipe.recipe_image.url }}`.
+- **Delete recipe:** New view `delete_recipe(request, id)` — `Recipe.objects.get(id=id)`, `.delete()`, then `redirect("/recipe/")`. URL: `path('delete_recipe/<int:id>/', delete_recipe, name='delete_recipe')`.
+- **Update recipe:** New view `update_recipe(request, id)` — GET: get recipe by id, pass to `update_recipe.html` (form pre-filled with `value="{{ recipe.recipe_name }}"` and description in textarea). POST: update name/description, optionally update image only if `request.FILES.get('recipe_image')`, then `save()` and `redirect("/recipe/")`. New template `recipe/templates/update_recipe.html`. URL: `path('update_recipe/<int:id>/', update_recipe, name='update_recipe')`.
+- **URL path converters:** Both delete and update use `<int:id>` so the view receives an integer; templates pass `recipe.id` into `{% url %}`.
+- **recipe/views.py:** Now has three views (recipe, delete_recipe, update_recipe); urls import with `from recipe.views import *`.
 
 ---
 

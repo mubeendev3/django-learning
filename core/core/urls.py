@@ -19,12 +19,15 @@ from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import path
 from home.views import *
-from recipe.views import recipe
+from recipe.views import *
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', home, name='home'),
     path('success/', success_page, name='success_page'),
+    # path('delete_recipe/<id>/', delete_recipe, name='delete_recipe'),
+    path('delete_recipe/<int:id>/', delete_recipe, name='delete_recipe'),
+    path('update_recipe/<int:id>/', update_recipe, name='update_recipe'),    
     path('features/', features, name='features'),
     path('contact/', contact, name='contact'),
     path('login/', login_page, name='login'),
